@@ -1,16 +1,25 @@
 <?php
-
 include 'conn.php';
 
-$student_id = $_POST['student_id'];
-$first_name = $_POST['first_name'];
-$last_name = $_POST['last_name'];
-$department = $_POST['department'];
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    header('Location: index.php');
+    exit;
+}
 
-$query_update = "UPDATE student_list SET firstname='$first_name', lastname='$last_name', department='$department' WHERE id=$student_id ";
+$student_id = $_POST['student_id'] ?? 0;
+$first_name = $_POST['first_name'] ?? '';
+$last_name = $_POST['last_name'] ?? '';
+$department = $_POST['department'] ?? '';
 
-mysqli_query($conn, $query_update);
+$stmt = $conn->prepare("UPDATE student_list SET firstname = ?, lastname = ?, department = ? WHERE id = ?");
+if (!$stmt) {
+    die('Prepare failed: ' . $conn->error);
+}
 
-header("location: index.php");
+$stmt->bind_param('sssi', $first_name, $last_name, $department, $student_id);
+$stmt->execute();
+$stmt->close();
 
+header('Location: index.php');
+exit;
 ?>

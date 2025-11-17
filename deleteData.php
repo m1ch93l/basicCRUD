@@ -1,13 +1,19 @@
 <?php
-
 include 'conn.php';
 
-$id = $_POST['delete_id'];
+if (empty($_POST['delete_id'])) {
+    header('Location: index.php');
+    exit;
+}
 
-$sqlDELETE = "DELETE FROM student_list WHERE id = '$id' ";
+$id = (int) $_POST['delete_id'];
 
-mysqli_query($conn, $sqlDELETE);
+if ($stmt = $conn->prepare('DELETE FROM student_list WHERE id = ?')) {
+    $stmt->bind_param('i', $id);
+    $stmt->execute();
+    $stmt->close();
+}
 
-header("location: index.php");
-
+header('Location: index.php');
+exit;
 ?>
